@@ -1,80 +1,67 @@
-# DLXhub for Android
+DLXhub
 
-**DLXhub** is a native Android multi-platform media downloader built with Kotlin and Jetpack Compose.
+DLXhub is a fast, privacy-focused Android media downloader designed for simple, reliable media saving from supported web sources.
 
----
+Features
 
-## Supported Media Platforms
+Video and audio downloads with available quality options
 
-| Platform | Short Code | Folder Name | Formats | Cookie Auth |
-|---|---|---|---|---|
-| **RedGIFs** | `RG` | `.RG_downloads` | MP4 (HD/SD), MP3 | Built-in v2 Bearer Token |
-| **XXXFollow** | `XF` | `.XF_downloads` | MP4, MP3 | Direct Progressive Stream |
-| **Facebook** | `FB` | `FB_downloads` | MP4 (HD/SD), MP3 | `Fb_cookies.txt` (Netscape format) |
-| **Twitter / X** | `X` | `X_downloads` | MP4 (Multi-bitrate), MP3 | `X_cookies.txt` (Netscape format) |
-| **YouTube** | `YT` | `YT_downloads` | MP4 (1080p, 720p, 480p, 360p), MP3 (320k, 192k, 128k) | Single videos, batch URLs, and playlists (`list=`) |
+Playlist and batch downloading
 
----
+Real-time download progress and background downloads
 
-## Key Architecture & Features
+Custom download folder selection
 
-1. **Native Kotlin Engine Layer**:
-   - High-throughput streaming via OkHttpClient with smoothed real-time speed (MB/s) and ETA calculations.
-   - Preserves original download engines logic, directory layout, and naming patterns.
+Secure local cookie profiles for authenticated downloads
 
-2. **Android Foreground Service (`DownloadForegroundService`)**:
-   - Ongoing system notification channel (`dlxhub_downloads`) showing real-time percentage, download speed, and remaining time.
-   - Partial CPU `WakeLock` keeps background downloads running reliably without OS throttling.
+Persistent download history with playback and sharing
 
-3. **Storage & Scoped Storage / SAF (`StorageDestinationManager`)**:
-   - Default directory: `Downloads/DLXhub/`
-   - Custom folder selection via Android Storage Access Framework (`ACTION_OPEN_DOCUMENT_TREE`) with persistable permissions.
-   - Strict filename sanitization (`safe_filename`) protecting against illegal characters.
+Android share-sheet support for quick link importing
 
-4. **Cookie Profile Manager (`CookieManager`)**:
-   - 100% offline local storage in private app directory (`context.filesDir/cookies/`).
-   - Standard Netscape HTTP cookie format support (`# Netscape HTTP Cookie File`).
-   - One-click import via Android document picker for `Fb_cookies.txt`, `X_cookies.txt`, and `YT_cookies.txt`.
+Collision-safe filenames and organized media folders
 
-5. **Local Persistence (Room Database)**:
-   - Full history persistence with media title, platform badge, file size, timestamp, and saved file URI.
-   - Direct media playback and sharing intents.
+Dark, responsive interface optimized for mobile use
 
-6. **Share Target Integration**:
-   - Direct integration with Android's system share sheet (`ACTION_SEND` with `text/plain`).
-   - Share any link from browser or social media apps directly to DLXhub for immediate resolution.
+Download Organization
 
-7. **Aesthetic & Design**:
-   - Obsidian dark canvas (`#070B14`, `#0D1527`, `#131E36`) with glowing neon accents (Cyan `#00E5FF`, Electric Blue `#2979FF`, Violet `#8B5CF6`).
-   - Glassmorphism cards with subtle neon borders, animated progress indicators, and custom adaptive app icon.
+DLXhub keeps downloads organized automatically:
 
----
+DLXhub/
+├── video/
+└── audio/
 
-## Build Instructions
+For playlists, a dedicated folder is created using the playlist name:
 
-### Standard Debug APK
-```bash
+DLXhub/
+└── Playlist Name/
+    ├── video/
+    └── audio/
+
+Build
+
+Debug APK
+
 gradle :app:assembleDebug
-```
-Output APK location:
-`app/build/outputs/apk/debug/app-debug.apk`
 
-### Run Unit Tests
-```bash
+APK output:
+
+app/build/outputs/apk/debug/app-debug.apk
+
+Unit Tests
+
 gradle :app:testDebugUnitTest
-```
 
-## Downloader architecture (final repair)
+Release
 
-DLXhub keeps the supplied Python downloader engines as the extraction source of truth:
+Create and push a version tag to trigger the automated APK release workflow:
 
-- `repo_audit/engines/YT_dl.py` — YouTube / yt-dlp
-- `repo_audit/engines/fbX_dl.py` — Facebook + X/Twitter / yt-dlp + direct Facebook fallback
-- `repo_audit/engines/XF_dl.py` — XXXFollow / yt-dlp + first-party parsing
-- `repo_audit/engines/RG_dl.py` — RedGIFs v2 API
+git tag v1.0.0
+git push origin v1.0.0
 
-The Android runtime includes the same Python engine source under `app/src/main/python/` and runs the yt-dlp extraction layer through Chaquopy. Kotlin handles queueing, background execution, SAF storage, byte streaming, and UI state. FFmpegKit is bundled for real MP4 muxing and MP3 encoding.
+Privacy
 
-### GitHub releases
+DLXhub is designed around local processing and local storage. Download history, destination settings, and cookie profiles remain on the device unless the user explicitly shares or exports content.
 
-Push a tag such as `v1.0.0` to trigger `.github/workflows/build-apk.yml`. The workflow builds the APK and attaches it to a GitHub Release. If release keystore secrets are not configured, the Gradle release variant uses the project debug signing key as a personal-distribution fallback. For production/Play signing, configure `KEYSTORE_PATH`, `STORE_PASSWORD`, and `KEY_PASSWORD` secrets/variables.
+License
+
+This project is intended for personal use. Users are responsible for complying with the terms, copyright rules, and applicable laws of the sources they access.
